@@ -1,36 +1,34 @@
 #include "renderer.h"
 
-#include "logging.h"
+#include "../core/logging.h"
+#include "renderable.h"
 #include "shadermanager.h"
 #include "shaderprogram.h"
-#include "renderable.h"
 #include "texture.h"
 #include "texturemanager.h"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-#include <iostream>
 #include <memory>
 
-Renderer* gRenderer(nullptr);
+Renderer *gRenderer(nullptr);
 
-void glfw_FramebufferChangedCallback(GLFWwindow* window, int width, int height)
-{
-  if(gRenderer) gRenderer->OnWindowSizeChanged(width, height);
+void glfw_FramebufferChangedCallback(GLFWwindow *window, int width,
+                                     int height) {
+  if (gRenderer)
+    gRenderer->OnWindowSizeChanged(width, height);
 }
 
-Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
-  m_WindowSizeX(windowSizeX), m_WindowSizeY(windowSizeY)
-{
+Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/)
+    : m_WindowSizeX(windowSizeX), m_WindowSizeY(windowSizeY) {
   LogVerbose("Starting up Renderer");
 
   // Initialise GLFW
-  if(!glfwInit())
-  {
+  if (!glfwInit()) {
     Fatal("Failed to initialse GLFW");
     return;
   }
@@ -40,9 +38,9 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   // Create the game window
-  m_Window = glfwCreateWindow(m_WindowSizeX, m_WindowSizeY, "Playing Cards", NULL, NULL);
-  if(!m_Window)
-  {
+  m_Window = glfwCreateWindow(m_WindowSizeX, m_WindowSizeY, "Playing Cards",
+                              NULL, NULL);
+  if (!m_Window) {
     Fatal("Failed to create GLFW window");
     return;
   }
@@ -50,8 +48,7 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   glfwMakeContextCurrent(m_Window);
 
   // Initialise GLAD
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-  {
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     Fatal("Failed to initialse GLAD");
     return;
   }
@@ -68,12 +65,11 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_ShaderManager = new ShaderManager;
   m_ShaderManager->CompileAllShaders();
 
-  //texture manager
+  // texture manager
   gTextureManager = new TextureManager;
 }
 
-Renderer::~Renderer()
-{
+Renderer::~Renderer() {
   LogVerbose("Shutting down Renderer");
 
   delete m_ShaderManager;
@@ -81,23 +77,20 @@ Renderer::~Renderer()
   glfwTerminate();
 }
 
-void Renderer::Update()
-{
+void Renderer::Update() {
   glClear(GL_COLOR_BUFFER_BIT);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  for(auto& renderable : renderables)
-  {
-    //shader
-    ShaderProgram* shaderptr = m_ShaderManager->GetShaderProgram(renderable->GetShader());
-    if(m_CurShader != shaderptr)
-    {
+  for (auto &renderable : renderables) {
+    // shader
+    ShaderProgram *shaderptr =
+        m_ShaderManager->GetShaderProgram(renderable->GetShader());
+    if (m_CurShader != shaderptr) {
       glUseProgram(shaderptr ? shaderptr->GetID() : 0);
 
-      if(shaderptr)
-      {
+      if (shaderptr) {
         shaderptr->SetMatrix("projection", m_ProjectionMatrix);
       }
 
@@ -106,24 +99,20 @@ void Renderer::Update()
 
     // apply texture if applicable
     glActiveTexture(GL_TEXTURE0);
-    if(Texture* tex = renderable->GetTexture())
-    {
+    if (Texture *tex = renderable->GetTexture()) {
       glBindTexture(GL_TEXTURE_2D, tex->GetTextureID());
-    }
-    else
-    {
+    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     shaderptr->SetVector("tileCoords", renderable->GetTileCoords());
 
-    //apply the model transform
-    if(m_CurShader)
-    {
+    // apply the model transform
+    if (m_CurShader) {
       m_CurShader->SetMatrix("model", renderable->transform.GetMatrix());
     }
 
-    //apply verticies and draw
+    // apply verticies and draw
     glBindVertexArray(renderable->GetVAO());
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -132,16 +121,13 @@ void Renderer::Update()
   glfwPollEvents();
   glfwSwapBuffers(m_Window);
 
-  if(glfwWindowShouldClose(m_Window))
-  {
+  if (glfwWindowShouldClose(m_Window)) {
     gApp->RequestClose();
   }
 }
 
-void Renderer::AddRenderable(std::shared_ptr<Renderable> renderable)
-{
-  if(renderable.get() == nullptr)
-  {
+void Renderer::AddRenderable(std::shared_ptr<Renderable> renderable) {
+  if (renderable.get() == nullptr) {
     Error("Attempted to add nullptr renderable");
     return;
   }
@@ -149,55 +135,47 @@ void Renderer::AddRenderable(std::shared_ptr<Renderable> renderable)
   renderables.push_back(renderable);
 }
 
-void Renderer::RemoveRenderable(std::shared_ptr<Renderable> renderable)
-{
-  if(renderable.get() == nullptr)
-  {
+void Renderer::RemoveRenderable(std::shared_ptr<Renderable> renderable) {
+  if (renderable.get() == nullptr) {
     Error("Attempted to add nullptr renderable");
     return;
   }
 
-  for(unsigned int i = 0; i < renderables.size(); ++i)
-  {
-    if(renderables[i] == renderable)
-    {
+  for (unsigned int i = 0; i < renderables.size(); ++i) {
+    if (renderables[i] == renderable) {
       renderables.erase(renderables.begin() + i);
       break;
     }
   }
 }
 
-void Renderer::SetGameAreaSize(float minSizeX, float minSizeY)
-{
+void Renderer::SetGameAreaSize(float minSizeX, float minSizeY) {
   m_GameAreaSizeX = minSizeX;
   m_GameAreaSizeY = minSizeY;
 
   float reqAspectRatio = minSizeY / minSizeX;
   float aspectRatio = (float)m_WindowSizeY / (float)m_WindowSizeX;
 
-  if(reqAspectRatio > aspectRatio)
-  {
+  if (reqAspectRatio > aspectRatio) {
     float sizeX = minSizeY / aspectRatio;
     float Xoffset = (sizeX - minSizeX) * 0.5f;
 
-    m_ProjectionMatrix = glm::ortho(-Xoffset, minSizeX + Xoffset, 0.0f, minSizeY, -1.0f, 100.0f);
-  }
-  else
-  {
+    m_ProjectionMatrix =
+        glm::ortho(-Xoffset, minSizeX + Xoffset, 0.0f, minSizeY, -1.0f, 100.0f);
+  } else {
     float sizeY = minSizeX * aspectRatio;
     float Yoffset = (sizeY - minSizeY) * 0.5f;
 
-    m_ProjectionMatrix = glm::ortho(0.0f, minSizeX, -Yoffset, minSizeY + Yoffset, -1.0f, 100.0f);
+    m_ProjectionMatrix =
+        glm::ortho(0.0f, minSizeX, -Yoffset, minSizeY + Yoffset, -1.0f, 100.0f);
   }
 
-  if(m_CurShader != nullptr)
-  {
+  if (m_CurShader != nullptr) {
     m_CurShader->SetMatrix("projection", m_ProjectionMatrix);
   }
 }
 
-void Renderer::OnWindowSizeChanged(int width, int height)
-{
+void Renderer::OnWindowSizeChanged(int width, int height) {
   m_WindowSizeX = width;
   m_WindowSizeY = height;
 
@@ -205,8 +183,7 @@ void Renderer::OnWindowSizeChanged(int width, int height)
   SetGameAreaSize(m_GameAreaSizeX, m_GameAreaSizeY);
 }
 
-glm::vec2 Renderer::Deproject(const glm::vec2& screenPos) const
-{
+glm::vec2 Renderer::Deproject(const glm::vec2 &screenPos) const {
   glm::mat4 deprojectionMatrix = glm::inverse(m_ProjectionMatrix);
   return deprojectionMatrix * glm::vec4((screenPos * 2.0f) - 1.0f, -1.0f, 1.0f);
 }

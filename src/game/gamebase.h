@@ -5,8 +5,7 @@
 
 #include <vector>
 
-class GameBase
-{
+class GameBase {
 public:
   GameBase() {}
   virtual ~GameBase() {}
@@ -16,19 +15,16 @@ public:
   unsigned int GameSeed = 0;
 
 protected:
-
   virtual void SetupGame() = 0;
 
 public:
-// game herlpers
-  static void GetShuffledDeck(std::vector<CardDef>& outDeck, int numJokers = 0);
+  // game herlpers
+  static void GetShuffledDeck(std::vector<CardDef> &outDeck, int numJokers = 0);
 
-  static void Shuffle(std::vector<CardDef>& deck);
+  static void Shuffle(std::vector<CardDef> &deck);
 
 private:
-
   void InitGameSeed();
-
 };
 
 #endif

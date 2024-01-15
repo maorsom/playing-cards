@@ -1,15 +1,14 @@
 #include "renderable.h"
 
-#include "logging.h"
+#include "../core/logging.h"
 #include "renderer.h"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-Renderable::Renderable(const Renderable* other)
-{
+Renderable::Renderable(const Renderable *other) {
   SetVisible(false);
 
   transform = other->transform;
@@ -25,15 +24,10 @@ Renderable::Renderable(const Renderable* other)
   SetVisible(other->m_IsVisible);
 }
 
-Renderable::~Renderable()
-{
-  SetVisible(false);
-}
+Renderable::~Renderable() { SetVisible(false); }
 
-void Renderable::GenerateBuffers()
-{
-  if(m_IsValid)
-  {
+void Renderable::GenerateBuffers() {
+  if (m_IsValid) {
     Error("Attempted to initalise renderable twice");
     return;
   }
@@ -47,9 +41,8 @@ void Renderable::GenerateBuffers()
   m_IsValid = true;
 }
 
-void Renderable::UpdateBuffers()
-{
-  if(!m_IsValid)
+void Renderable::UpdateBuffers() {
+  if (!m_IsValid)
     GenerateBuffers();
 
   std::vector<float> vertices;
@@ -59,15 +52,18 @@ void Renderable::UpdateBuffers()
   glBindVertexArray(m_VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),
+               vertices.data(), GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * indices.size(), indices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * indices.size(),
+               indices.data(), GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
@@ -75,30 +71,28 @@ void Renderable::UpdateBuffers()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Renderable::SetVisible(bool visible)
-{
-  if(visible == m_IsVisible) return;
+void Renderable::SetVisible(bool visible) {
+  if (visible == m_IsVisible)
+    return;
 
   m_IsVisible = visible;
 
-  if(gRenderer)
-  {
-    if(m_IsVisible)
+  if (gRenderer) {
+    if (m_IsVisible)
       gRenderer->AddRenderable(shared_from_this());
     else
       gRenderer->RemoveRenderable(shared_from_this());
   }
 }
 
-void Renderable::SetTexture(const std::shared_ptr<Texture>& texture)
-{
+void Renderable::SetTexture(const std::shared_ptr<Texture> &texture) {
   m_Texture = texture;
 
   m_Shader = ShaderType::STD;
 }
 
-void Renderable::SetAtlasTexture(const std::shared_ptr<Texture>& texture, const glm::ivec4& tileCoords)
-{
+void Renderable::SetAtlasTexture(const std::shared_ptr<Texture> &texture,
+                                 const glm::ivec4 &tileCoords) {
   m_Texture = texture;
   m_TileCoords = tileCoords;
 

@@ -1,16 +1,17 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "renderable.h"
+#include "../renderable.h"
 
-class Sprite : public Renderable
-{
+class Sprite : public Renderable {
 public:
   Sprite() {}
-  Sprite(const Sprite* other) : Renderable(other) {}
+  Sprite(const Sprite *other) : Renderable(other) {}
 
 protected:
-  virtual void GetMeshData(std::vector<float>& outVerticies, std::vector<unsigned int>& outIndicies) const override;
+  virtual void
+  GetMeshData(std::vector<float> &outVerticies,
+              std::vector<unsigned int> &outIndicies) const override;
 };
 
 #endif

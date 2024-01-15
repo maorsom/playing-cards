@@ -1,51 +1,47 @@
 #include "card.h"
 
-#include "texturemanager.h"
+#include "../render/texturemanager.h"
 
-Card::Card(CardDef definition)
-{
+Card::Card(CardDef definition) {
   m_Definition = definition;
   UpdateTexture();
 
   transform.SetScale(glm::vec3(14.0f, 19.0f, 1.0f));
 }
 
-Card::Card(const Card* other) : Sprite(other)
-{
+Card::Card(const Card *other) : Sprite(other) {
   m_Definition = other->m_Definition;
   UpdateTexture();
 }
 
-void Card::SetSuit(Suit newSuit)
-{
+void Card::SetSuit(Suit newSuit) {
   m_Definition.suit = newSuit;
   UpdateTexture();
 }
 
-void Card::SetCard(CardType newCard)
-{
+void Card::SetCard(CardType newCard) {
   m_Definition.cardType = newCard;
   UpdateTexture();
 }
 
-void Card::Flip()
-{
-  if(IsFaceUp()) m_Definition.facing = CardFace::FaceDown;
-  else m_Definition.facing = CardFace::FaceUp;
+void Card::Flip() {
+  if (IsFaceUp())
+    m_Definition.facing = CardFace::FaceDown;
+  else
+    m_Definition.facing = CardFace::FaceUp;
 }
 
-void Card::UpdateTexture()
-{
-  if(m_Definition.facing == CardFace::FaceDown)
-  {
-    SetAtlasTexture(gTextureManager->FindOrLoadTexture("playingCardBacks.png"), gTextureManager->GetTileCoords("playingCardBacks.csv", "cardBack_blue2"));
+void Card::UpdateTexture() {
+  if (m_Definition.facing == CardFace::FaceDown) {
+    SetAtlasTexture(gTextureManager->FindOrLoadTexture("playingCardBacks.png"),
+                    gTextureManager->GetTileCoords("playingCardBacks.csv",
+                                                   "cardBack_blue2"));
     return;
   }
 
   std::string tileID = "card";
 
-  switch(m_Definition.suit)
-  {
+  switch (m_Definition.suit) {
   case Suit::S_Clubs:
     tileID.append("Clubs");
     break;
@@ -62,8 +58,7 @@ void Card::UpdateTexture()
     break;
   }
 
-  switch(m_Definition.cardType)
-  {
+  switch (m_Definition.cardType) {
   case CardType::Joker:
     tileID.append("Joker");
     break;
@@ -114,5 +109,6 @@ void Card::UpdateTexture()
     break;
   }
 
-  SetAtlasTexture(gTextureManager->FindOrLoadTexture("playingCards.png"), gTextureManager->GetTileCoords("playingCards.csv", tileID));
+  SetAtlasTexture(gTextureManager->FindOrLoadTexture("playingCards.png"),
+                  gTextureManager->GetTileCoords("playingCards.csv", tileID));
 }

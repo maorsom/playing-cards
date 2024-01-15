@@ -1,17 +1,25 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
-struct Transform
-{
+struct Transform {
   Transform();
 
   glm::mat4 GetMatrix() const { return matrix; }
 
-  inline void SetPosition(const glm::vec3& newPosition) { position = newPosition; UpdateMatrix(); }
-  inline void SetRotation(const glm::vec3& newRotation) { rotation = newRotation; UpdateMatrix(); }
-  inline void SetScale(const glm::vec3& newScale) { scale = newScale; UpdateMatrix(); }
+  inline void SetPosition(const glm::vec3 &newPosition) {
+    position = newPosition;
+    UpdateMatrix();
+  }
+  inline void SetRotation(const glm::vec3 &newRotation) {
+    rotation = newRotation;
+    UpdateMatrix();
+  }
+  inline void SetScale(const glm::vec3 &newScale) {
+    scale = newScale;
+    UpdateMatrix();
+  }
 
 private:
   void UpdateMatrix();

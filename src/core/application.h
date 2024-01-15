@@ -1,12 +1,9 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <vector>
+extern class Application *gApp;
 
-extern class Application* gApp;
-
-class Application
-{
+class Application {
 public:
   Application();
   virtual ~Application();
@@ -18,13 +15,11 @@ public:
   void PerformGameLoop();
 
 private:
-
-  static Application* instance;
+  static Application *instance;
 
   long getTimestamp() const;
 
 private:
-
   bool m_ShouldBeClosed = false;
 };
 

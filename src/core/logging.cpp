@@ -1,15 +1,14 @@
 #include "logging.h"
 
-#include <iostream>
+#include <stdio.h>
 #include <time.h>
 
-namespace
-{
-  char buff[11];
+namespace {
+char buff[11];
 };
 
-void Logging::Log_Internal(const char* Message, const char* Colour /*= ANSI_COLOR_RESET*/)
-{
+void Logging::Log_Internal(const char *Message,
+                           const char *Colour /*= ANSI_COLOR_RESET*/) {
   time_t time_raw;
   time(&time_raw);
 

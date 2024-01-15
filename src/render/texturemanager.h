@@ -1,17 +1,16 @@
 #ifndef TEXTUREMANAGER_H
 #define TEXTUREMANAGER_H
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
-#include <memory>
 #include <map>
+#include <memory>
 
-extern class TextureManager* gTextureManager;
+extern class TextureManager *gTextureManager;
 
 class Texture;
 
-struct TileDefinition
-{
+struct TileDefinition {
   int x;
   int y;
   int width;
@@ -20,27 +19,26 @@ struct TileDefinition
 
 typedef std::map<std::string, TileDefinition> TextureManager_TileDefMap;
 
-struct TileDefinitionCollection
-{
+struct TileDefinitionCollection {
   TextureManager_TileDefMap map;
 };
 
 typedef std::map<std::string, std::shared_ptr<Texture>> TextureManagerMap;
-typedef std::map<std::string, TileDefinitionCollection> TextureManager_TileDefFilesMap;
+typedef std::map<std::string, TileDefinitionCollection>
+    TextureManager_TileDefFilesMap;
 
-class TextureManager
-{
+class TextureManager {
 public:
   TextureManager() {}
   ~TextureManager();
 
-  std::shared_ptr<Texture> FindOrLoadTexture(const std::string& filepath);
+  std::shared_ptr<Texture> FindOrLoadTexture(const std::string &filepath);
 
-  glm::ivec4 GetTileCoords(const std::string& filename, const std::string& tilename);
+  glm::ivec4 GetTileCoords(const std::string &filename,
+                           const std::string &tilename);
 
 private:
-
-  void LoadTileDefinitionCollection(const std::string& filename);
+  void LoadTileDefinitionCollection(const std::string &filename);
 
 private:
   TextureManagerMap m_LoadedTextures;

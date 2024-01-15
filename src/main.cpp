@@ -1,10 +1,9 @@
-#include "application.h"
+#include "core/application.h"
 
-//returns current time in microseconds
+// returns current time in microseconds
 long get_timestamp();
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
   gApp = new Application;
 
   gApp->PerformGameLoop();
