@@ -3,5 +3,4 @@
 *.d
 
 build/
-
-libs/glm/
+.cache/
